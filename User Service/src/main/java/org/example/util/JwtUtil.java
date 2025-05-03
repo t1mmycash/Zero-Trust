@@ -4,7 +4,7 @@ package org.example.util;
 import io.jsonwebtoken.Jwts;
 import lombok.SneakyThrows;
 import org.example.exceptions.TokenValidationException;
-import org.example.model.AuthResponse;
+import org.example.dto.AuthResponse;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -19,6 +19,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -44,8 +45,8 @@ public class JwtUtil {
         Date expiry = new Date(now.getTime() + expirationAccess);
         PrivateKey privateKey = loadPrivateKey();
         return Jwts.builder()
-                .subject(user.getUsername())
-                .claim("role", user.getRole())
+                .subject(user.getId().toString())
+                .claim("roles", List.of(user.getRole()))
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(privateKey)
@@ -59,8 +60,8 @@ public class JwtUtil {
         String jti = UUID.randomUUID().toString();
         PrivateKey privateKey = loadPrivateKey();
         return Jwts.builder()
-                .subject(user.getUsername())
-                .claim("role", user.getRole())
+                .subject(user.getId().toString())
+                .claim("roles", List.of(user.getRole()))
                 .claim("type", "refresh")
                 .issuedAt(new Date())
                 .expiration(expiry)
@@ -90,18 +91,18 @@ public class JwtUtil {
                     "Refresh - токен неправильный, просрочен или отозван, аутентифицируйтесь заново");
         }
         User user = User.builder()
-                .username(getUsernameFromToken(refreshToken))
+                .id(Long.parseLong(getIdFromToken((refreshToken))))
                 .role(getRoleFromToken(refreshToken))
                 .build();
         return AuthResponse.builder()
-                .username(user.getUsername())
+                //.username(user.getUsername())
                 .role(user.getRole())
                 .accessToken(generateAccessToken(user))
                 .refreshToken(generateRefreshToken(user))
                 .build();
     }
 
-    public String getUsernameFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    public String getIdFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PublicKey publicKey = loadPublicKey();
         return Jwts.parser()
                 .verifyWith(publicKey)
@@ -118,7 +119,7 @@ public class JwtUtil {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
-                .get("role", String.class);
+                .get("roles", String.class);
     }
 
     public String getJtiFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {

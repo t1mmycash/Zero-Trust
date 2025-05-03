@@ -1,10 +1,9 @@
 package org.example.util;
 
-import org.example.exceptions.UserAlreadyExistsException;
-import org.example.exceptions.UserNotFoundException;
+import org.example.exceptions.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Map;
@@ -13,14 +12,27 @@ import java.util.Map;
 public class ErrorHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleUserNotFound(final UserNotFoundException userNotFoundException) {
-        return Map.of("message", userNotFoundException.getMessage());
+    public ResponseEntity<Map<String, String>> userNotFoundHandler(UserNotFoundException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleUserAlreadyExists(final UserAlreadyExistsException userAlreadyExistsException){
-        return Map.of("message", userAlreadyExistsException.getMessage());
+    public ResponseEntity<Map<String, String>> userAlreadyExistsHandler(UserAlreadyExistsException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TokenValidationException.class)
+    public ResponseEntity<Map<String, String>> tokenValidationHandler(TokenValidationException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(WrongPasswordException.class)
+    public ResponseEntity<Map<String, String>> wrongPasswordHandler(WrongPasswordException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(IllegalRoleException.class)
+    public ResponseEntity<Map<String, String>> illegalRoleHandler(IllegalRoleException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }
