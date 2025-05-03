@@ -6,10 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
-    private String username;
-    private String role;
+public class OrderResponse {
+    private Long id;
+    private String description;
+    private String status;
 }

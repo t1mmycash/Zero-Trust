@@ -1,8 +1,8 @@
 package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.model.AuthRequest;
-import org.example.model.AuthResponse;
+import org.example.dto.AuthRequest;
+import org.example.dto.AuthResponse;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
