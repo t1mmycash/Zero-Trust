@@ -43,7 +43,6 @@ public class AuthService {
             user.setRefreshToken(newRefreshToken);
             userRepository.saveAndFlush(user);
             return AuthResponse.builder()
-                    //.username(user.getUsername())
                     .role(user.getRole())
                     .accessToken(jwtUtil.generateAccessToken(user))
                     .refreshToken(newRefreshToken)
@@ -62,12 +61,9 @@ public class AuthService {
         User user = userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new UserNotFoundException("Вероятно токен отозван"));
         return AuthResponse.builder()
-                //.username(user.getUsername())
                 .role(user.getRole())
                 .refreshToken(refreshToken)
                 .accessToken(jwtUtil.generateAccessToken(user))
                 .build();
     }
-
-
 }

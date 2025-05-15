@@ -1,10 +1,7 @@
 package org.example.util;
 
-
 import io.jsonwebtoken.Jwts;
 import lombok.SneakyThrows;
-import org.example.exceptions.TokenValidationException;
-import org.example.dto.AuthResponse;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -23,7 +20,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-@PropertySource("classpath:application.properties")
 public class JwtUtil {
 
     @Value("${rsa.private-key-path}")
@@ -41,7 +37,7 @@ public class JwtUtil {
 
     @SneakyThrows
     public String generateAccessToken(User user) {
-        Date now    = new Date();
+        Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationAccess);
         PrivateKey privateKey = loadPrivateKey();
         return Jwts.builder()
@@ -55,7 +51,7 @@ public class JwtUtil {
 
     @SneakyThrows
     public String generateRefreshToken(User user) {
-        Date now    = new Date();
+        Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationRefresh);
         String jti = UUID.randomUUID().toString();
         PrivateKey privateKey = loadPrivateKey();
@@ -72,7 +68,7 @@ public class JwtUtil {
 
 
     @SneakyThrows
-    public boolean validateToken(String token)  {
+    public boolean validateToken(String token) {
         PublicKey publicKey = loadPublicKey();
         try {
             Jwts.parser()
@@ -85,22 +81,22 @@ public class JwtUtil {
         }
     }
 
-    public AuthResponse refreshTokens(String refreshToken) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        if(!validateToken(refreshToken)) {
-            throw new TokenValidationException(
-                    "Refresh - токен неправильный, просрочен или отозван, аутентифицируйтесь заново");
-        }
-        User user = User.builder()
-                .id(Long.parseLong(getIdFromToken((refreshToken))))
-                .role(getRoleFromToken(refreshToken))
-                .build();
-        return AuthResponse.builder()
-                //.username(user.getUsername())
-                .role(user.getRole())
-                .accessToken(generateAccessToken(user))
-                .refreshToken(generateRefreshToken(user))
-                .build();
-    }
+//    public AuthResponse refreshTokens(String refreshToken)
+//            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+//        if (!validateToken(refreshToken)) {
+//            throw new TokenValidationException(
+//                    "Refresh - токен неправильный, просрочен или отозван, аутентифицируйтесь заново");
+//        }
+//        User user = User.builder()
+//                .id(Long.parseLong(getIdFromToken((refreshToken))))
+//                .role(getRoleFromToken(refreshToken))
+//                .build();
+//        return AuthResponse.builder()
+//                .role(user.getRole())
+//                .accessToken(generateAccessToken(user))
+//                .refreshToken(generateRefreshToken(user))
+//                .build();
+//    }
 
     public String getIdFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PublicKey publicKey = loadPublicKey();
@@ -114,12 +110,13 @@ public class JwtUtil {
 
     public String getRoleFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PublicKey publicKey = loadPublicKey();
-        return Jwts.parser()
+        var claims = Jwts.parser()
                 .verifyWith(publicKey)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload()
-                .get("roles", String.class);
+                .getPayload();
+        List<String> roles = claims.get("roles", List.class);
+        return roles.get(0);
     }
 
     public String getJtiFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -151,8 +148,4 @@ public class JwtUtil {
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
         return KeyFactory.getInstance("RSA").generatePublic(keySpec);
     }
-
-
-
-
 }
