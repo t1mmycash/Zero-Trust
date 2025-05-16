@@ -6,7 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Builder
-@NoArgsConstructor
+//@NoArgsConstructor
 public class AuthResponse {
     private String accessToken;  // Основной токен для доступа к API
     private String refreshToken; // Токен для обновления accessToken
