@@ -2,13 +2,16 @@ package org.example.util;
 
 import io.jsonwebtoken.Jwts;
 import lombok.SneakyThrows;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
@@ -129,21 +132,35 @@ public class JwtUtil {
                 .getId();
     }
 
-    private PrivateKey loadPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        String privateKeyPem = new String(privateKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s", "");
-        byte[] decoded = Base64.getDecoder().decode(privateKeyPem);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-        return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+//    private PrivateKey loadPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+//        String privateKeyPem = new String(privateKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
+//                .replace("-----BEGIN PRIVATE KEY-----", "")
+//                .replace("-----END PRIVATE KEY-----", "")
+//                .replaceAll("\\r\\n|\\n", "") // Удаляем все переносы строк
+//                .trim();
+//        byte[] decoded = Base64.getDecoder().decode(privateKeyPem);
+//        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
+//        return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+//    }
+
+    private PrivateKey loadPrivateKey() throws IOException {
+        try (PEMParser pemParser = new PEMParser(
+                new InputStreamReader(privateKeyResource.getInputStream())
+        )) {
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            PrivateKeyInfo privateKeyInfo = (PrivateKeyInfo) pemParser.readObject();
+            return converter.getPrivateKey(privateKeyInfo);
+        }
     }
+
+
 
     private PublicKey loadPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         String publicKeyPem = new String(publicKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")
-                .replaceAll("\\s", "");
+                .replaceAll("\\r\\n|\\n", "") // Удаляем все переносы строк
+                .trim();
         byte[] decoded = Base64.getDecoder().decode(publicKeyPem);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
         return KeyFactory.getInstance("RSA").generatePublic(keySpec);
