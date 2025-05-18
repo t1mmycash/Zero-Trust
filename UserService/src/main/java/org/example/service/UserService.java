@@ -8,6 +8,7 @@ import org.example.storage.UserRepository;
 import org.example.util.Roles;
 import org.example.util.UserMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Нет пользователя с id = " + userId));
     }
 
+    @Transactional
     public UserDto updateRole(Long userId, String role) {
         try {
             Roles.valueOf(role);
