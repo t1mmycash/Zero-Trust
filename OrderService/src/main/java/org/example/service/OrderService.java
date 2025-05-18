@@ -11,6 +11,7 @@ import org.example.storage.OrderRepository;
 import org.example.util.OrderMapper;
 import org.example.util.Status;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
+    @Transactional
     public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
         Order order = orderRepository.saveAndFlush(Order.builder()
                 .description(orderRequest.getDescription())
@@ -48,6 +50,7 @@ public class OrderService {
         return orderRepository.findAll().stream().map(OrderMapper::orderToOrderResponse).toList();
     }
 
+    @Transactional
     public OrderResponse  updateRole(Long orderId, String status) {
         try {
             Status.valueOf(status);

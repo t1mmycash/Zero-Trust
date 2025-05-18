@@ -13,6 +13,7 @@ import org.example.util.JwtUtil;
 import org.example.util.Roles;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    @Transactional
     public String register(AuthRequest authRequest) {
         if(userRepository.existsByUsername(authRequest.getLogin())) {
             throw new UserAlreadyExistsException(
