@@ -3,6 +3,7 @@ package org.example.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.AuthRequest;
 import org.example.dto.AuthResponse;
+import org.example.dto.RefreshAccessTokenRequest;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +28,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody String refreshToken) {
-        return ResponseEntity.ok(authService.refresh(refreshToken));
+    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshAccessTokenRequest refreshToken) {
+        return ResponseEntity.ok(authService.refresh(refreshToken.getRefreshToken()));
     }
 
 }
