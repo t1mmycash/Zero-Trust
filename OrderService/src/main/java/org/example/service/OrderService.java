@@ -31,11 +31,11 @@ public class OrderService {
         return OrderMapper.orderToOrderResponse(order);
     }
 
-    public OrderResponse getOrder(Long orderId, Long userId) {
+    public OrderResponse getOrder(Long orderId, Long userId, List<String> roles) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(
                         String.format("Заказа с id = %d не существует", orderId)));
-        if(!order.getUserId().equals(userId)) {
+        if(!order.getUserId().equals(userId) && !roles.contains("ADMIN")) {
             throw new AccessDeniedException("Доступ запрещен");
         }
         return OrderMapper.orderToOrderResponse(order);
@@ -64,6 +64,4 @@ public class OrderService {
         order = orderRepository.saveAndFlush(order);
         return OrderMapper.orderToOrderResponse(order);
     }
-
-
 }

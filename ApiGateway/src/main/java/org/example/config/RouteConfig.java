@@ -13,7 +13,10 @@ public class RouteConfig {
         return builder.routes()
                 .route("user-service-public", r -> r
                         .path("/api/auth/**")
-                        .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/api/auth/${segment}"))
+                        .filters(f -> f
+                                .rewritePath("/api/auth/(?<segment>.*)", "/api/auth/${segment}")
+                                .addRequestHeader("X-Request-Source", "gateway")
+                        )
                         .uri("http://user-service:8081")
                 )
                 .route("user-service-secure", r -> r

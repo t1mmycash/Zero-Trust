@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -27,13 +27,14 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<OrderResponse> getOrder(@PathVariable Long orderId, @AuthenticationPrincipal Jwt jwt) {
-        return ResponseEntity.ok(orderService.getOrder(orderId, Long.parseLong(jwt.getSubject())));
+        return ResponseEntity
+                .ok(orderService.getOrder(orderId, Long.parseLong(jwt.getSubject()), jwt.getClaimAsStringList("roles")));
     }
 
     @GetMapping("/my")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<List<OrderResponse>> getOrdersByUserId(@AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(orderService.getOrdersByUserId(Long.parseLong(jwt.getSubject())));
     }
