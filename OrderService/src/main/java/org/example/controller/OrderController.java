@@ -3,6 +3,7 @@ package org.example.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.OrderRequest;
 import org.example.dto.OrderResponse;
+import org.example.dto.StatusUpdateRequest;
 import org.example.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,7 +48,7 @@ public class OrderController {
 
     @PatchMapping("/{orderId}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<OrderResponse> updateStatus(@PathVariable Long orderId, @RequestBody String status) {
-        return ResponseEntity.ok(orderService.updateRole(orderId, status));
+    public ResponseEntity<OrderResponse> updateStatus(@PathVariable Long orderId, @RequestBody StatusUpdateRequest status) {
+        return ResponseEntity.ok(orderService.updateRole(orderId, status.getStatus()));
     }
 }
