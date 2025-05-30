@@ -16,6 +16,11 @@ public class ErrorHandler {
         return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(TokenNotFoundException.class)
+    public ResponseEntity<Map<String, String>> tokenNotFoundHandler(TokenNotFoundException e) {
+        return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> userAlreadyExistsHandler(UserAlreadyExistsException e) {
         return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.CONFLICT);

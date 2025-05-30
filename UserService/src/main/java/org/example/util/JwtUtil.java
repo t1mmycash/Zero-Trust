@@ -15,7 +15,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
@@ -84,45 +83,8 @@ public class JwtUtil {
         }
     }
 
-//    public AuthResponse refreshTokens(String refreshToken)
-//            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-//        if (!validateToken(refreshToken)) {
-//            throw new TokenValidationException(
-//                    "Refresh - токен неправильный, просрочен или отозван, аутентифицируйтесь заново");
-//        }
-//        User user = User.builder()
-//                .id(Long.parseLong(getIdFromToken((refreshToken))))
-//                .role(getRoleFromToken(refreshToken))
-//                .build();
-//        return AuthResponse.builder()
-//                .role(user.getRole())
-//                .accessToken(generateAccessToken(user))
-//                .refreshToken(generateRefreshToken(user))
-//                .build();
-//    }
-
-    public String getIdFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        PublicKey publicKey = loadPublicKey();
-        return Jwts.parser()
-                .verifyWith(publicKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
-
-    public String getRoleFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        PublicKey publicKey = loadPublicKey();
-        var claims = Jwts.parser()
-                .verifyWith(publicKey)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        List<String> roles = claims.get("roles", List.class);
-        return roles.get(0);
-    }
-
-    public String getJtiFromToken(String token) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+    @SneakyThrows
+    public String getJtiFromToken(String token) {
         PublicKey publicKey = loadPublicKey();
         return Jwts.parser()
                 .verifyWith(publicKey)
@@ -131,17 +93,6 @@ public class JwtUtil {
                 .getPayload()
                 .getId();
     }
-
-//    private PrivateKey loadPrivateKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-//        String privateKeyPem = new String(privateKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8)
-//                .replace("-----BEGIN PRIVATE KEY-----", "")
-//                .replace("-----END PRIVATE KEY-----", "")
-//                .replaceAll("\\r\\n|\\n", "") // Удаляем все переносы строк
-//                .trim();
-//        byte[] decoded = Base64.getDecoder().decode(privateKeyPem);
-//        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-//        return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
-//    }
 
     private PrivateKey loadPrivateKey() throws IOException {
         try (PEMParser pemParser = new PEMParser(
@@ -152,8 +103,6 @@ public class JwtUtil {
             return converter.getPrivateKey(privateKeyInfo);
         }
     }
-
-
 
     private PublicKey loadPublicKey() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         String publicKeyPem = new String(publicKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8)

@@ -1,10 +1,7 @@
 package org.example.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.exceptions.TokenValidationException;
-import org.example.exceptions.UserAlreadyExistsException;
-import org.example.exceptions.UserNotFoundException;
-import org.example.exceptions.WrongPasswordException;
+import org.example.exceptions.*;
 import org.example.dto.AuthRequest;
 import org.example.dto.AuthResponse;
 import org.example.model.User;
@@ -42,7 +39,7 @@ public class AuthService {
                         String.format("Пользователя с логином = %s не сюществует", authRequest.getLogin())));
         if(passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             String newRefreshToken = jwtUtil.generateRefreshToken(user);
-            user.setRefreshToken(newRefreshToken);
+            user.setJti(jwtUtil.getJtiFromToken(newRefreshToken));
             userRepository.saveAndFlush(user);
             return AuthResponse.builder()
                     .role(user.getRole())
@@ -60,7 +57,7 @@ public class AuthService {
                     "Refresh - токен неправильный, просрочен или отозван, аутентифицируйтесь заново");
 
         }
-        User user = userRepository.findByRefreshToken(refreshToken)
+        User user = userRepository.findByJti(jwtUtil.getJtiFromToken(refreshToken))
                 .orElseThrow(() -> new UserNotFoundException("Вероятно токен отозван"));
         return AuthResponse.builder()
                 .role(user.getRole())
@@ -69,5 +66,11 @@ public class AuthService {
                 .build();
     }
 
-
+    public String revokeRefreshToken(String refreshToken) {
+        User user = userRepository.findByJti(jwtUtil.getJtiFromToken(refreshToken))
+                .orElseThrow(() -> new TokenNotFoundException(String.format("Токен %s не найден", refreshToken)));
+        user.setJti(null);
+        userRepository.saveAndFlush(user);
+        return "Токен отозван";
+    }
 }
