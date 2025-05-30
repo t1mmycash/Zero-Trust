@@ -29,7 +29,6 @@ public class User {
     @Column(nullable = false)
     private String role;  // Роли (например, "USER", "ADMIN")
 
-    @Column(name = "refresh")
-    private String refreshToken;
-
+    @Column(name = "jti")
+    private String jti;
 }

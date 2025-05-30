@@ -3,13 +3,10 @@ package org.example.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.dto.AuthRequest;
 import org.example.dto.AuthResponse;
-import org.example.dto.RefreshAccessTokenRequest;
+import org.example.dto.RefreshTokenRequest;
 import org.example.service.AuthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,8 +25,13 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshAccessTokenRequest refreshToken) {
+    public ResponseEntity<AuthResponse> refresh(@RequestBody RefreshTokenRequest refreshToken) {
         return ResponseEntity.ok(authService.refresh(refreshToken.getRefreshToken()));
+    }
+
+    @PatchMapping("/revoke")
+    public ResponseEntity<?> revokeRefreshToken(@RequestBody RefreshTokenRequest refreshToken) {
+        return ResponseEntity.ok(authService.revokeRefreshToken(refreshToken.getRefreshToken()));
     }
 
 }
