@@ -21,7 +21,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 
-    @PatchMapping("/{userId}/role")
+    @PatchMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateRole(@PathVariable Long userId, @RequestParam String role){
         return ResponseEntity.ok(userService.updateRole(userId, role));

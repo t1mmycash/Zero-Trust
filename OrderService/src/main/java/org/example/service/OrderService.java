@@ -11,6 +11,7 @@ import org.example.storage.OrderRepository;
 import org.example.util.OrderMapper;
 import org.example.util.Status;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
+    @Transactional
     public OrderResponse createOrder(Long userId, OrderRequest orderRequest) {
         Order order = orderRepository.saveAndFlush(Order.builder()
                 .description(orderRequest.getDescription())
@@ -29,11 +31,11 @@ public class OrderService {
         return OrderMapper.orderToOrderResponse(order);
     }
 
-    public OrderResponse getOrder(Long orderId, Long userId) {
+    public OrderResponse getOrder(Long orderId, Long userId, List<String> roles) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(
                         String.format("Заказа с id = %d не существует", orderId)));
-        if(!order.getUserId().equals(userId)) {
+        if(!order.getUserId().equals(userId) && !roles.contains("ADMIN")) {
             throw new AccessDeniedException("Доступ запрещен");
         }
         return OrderMapper.orderToOrderResponse(order);
@@ -48,6 +50,7 @@ public class OrderService {
         return orderRepository.findAll().stream().map(OrderMapper::orderToOrderResponse).toList();
     }
 
+    @Transactional
     public OrderResponse  updateRole(Long orderId, String status) {
         try {
             Status.valueOf(status);
@@ -61,6 +64,4 @@ public class OrderService {
         order = orderRepository.saveAndFlush(order);
         return OrderMapper.orderToOrderResponse(order);
     }
-
-
 }
