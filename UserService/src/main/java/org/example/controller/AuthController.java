@@ -33,5 +33,4 @@ public class AuthController {
     public ResponseEntity<?> revokeRefreshToken(@RequestBody RefreshTokenRequest refreshToken) {
         return ResponseEntity.ok(authService.revokeRefreshToken(refreshToken.getRefreshToken()));
     }
-
 }
