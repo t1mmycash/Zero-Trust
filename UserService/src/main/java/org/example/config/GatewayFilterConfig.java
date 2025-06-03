@@ -11,11 +11,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Фильтр, который проверяет, что каждый запрос пришёл через API‑Gateway:
- * в нём должен присутствовать заголовок X-Request-Source=gateway.
- * Если заголовок отсутствует или имеет другое значение — возвращаем 403.
- */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GatewayFilterConfig extends OncePerRequestFilter {
@@ -35,7 +30,6 @@ public class GatewayFilterConfig extends OncePerRequestFilter {
                     "Forbidden: missing or invalid " + HEADER_NAME);
             return;
         }
-        // всё ок — пропускаем дальше
         filterChain.doFilter(request, response);
     }
 }

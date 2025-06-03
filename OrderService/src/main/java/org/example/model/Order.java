@@ -21,7 +21,7 @@ public class Order {
     private String description;
 
     @Column(nullable = false)
-    private String status; // CREATED, PROCESSING, COMPLETED
+    private String status;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;

@@ -27,5 +27,4 @@ public class ErrorHandler {
     public ResponseEntity<Map<String, String>> orderNotFoundHandle(final OrderNotFoundException e) {
         return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_FOUND);
     }
-
 }
